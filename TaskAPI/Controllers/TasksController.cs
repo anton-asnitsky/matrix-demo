@@ -121,6 +121,15 @@ namespace TaskAPI.Controllers
             });
         }
 
+        [HttpPut("{id}/complete")]
+        [Authorize]
+        public async Task<IActionResult> CompleteTask(Guid taskId)
+        {
+
+            await _tasksService.CompleteTask(taskId);
+            return Ok();
+        }
+
         [HttpDelete("{id}")]
         [Authorize]
         public async Task<IActionResult> DeleteTask(Guid taskId)

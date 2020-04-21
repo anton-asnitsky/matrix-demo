@@ -15,6 +15,6 @@ namespace TaskAPI.Services.Interfaces
         Task<(List<Guid> Assigned, List<Guid> NotAssigned)> AssignUsers(Guid taskId, List<Guid> usersToAssign, List<Guid> usersToUnassign);
         Task DeleteTask(Guid taskId);
         Task<List<UserTask>> GetTasksByEmail(string email);
-
+        Task CompleteTask(Guid taskId);
     }
 }

@@ -83,6 +83,18 @@ namespace TaskAPI.Services
             return (usersToAssign.Except(nonExistingUsers).ToList(), nonExistingUsers);
         }
 
+        public async Task CompleteTask(Guid taskId)
+        {
+            var task = await _dataContext.UserTasks.FindAsync(taskId);
+
+            if (task == null)
+                throw new NotFoundException(new[] { "Task not found." });
+
+            task.Done = true;
+
+            await _dataContext.SaveChangesAsync();
+        }
+
         public async Task<(List<Guid> Assigned, List<Guid> NotAssigned)> CreateTask(UserTask task, List<Guid> assignTo)
         {
             var nonExistingUsers = new List<Guid>();
