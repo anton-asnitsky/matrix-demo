@@ -1,0 +1,66 @@
+bin
+obj
+.vs
+*.exe
+*.pak
+*.dll
+#External packages
+bower_components/
+node_modules/
+
+#Exclude tsc generated files
+lib/
+coverage/
+.nyc_output
+#npm generated foles
+*.swp
+*.*~
+.DS_Store
+
+
+# Visual Studio Code
+.vscode
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+RecordingEngine/dist/
+x64/
+x86/
+build/
+logs/
+log/
+executables/
+bld/
+dist/
+[Bb]in/
+[Oo]bj/
+msbuild.log
+msbuild.err
+msbuild.wrn
+validators.js.back
+domhandler.js.back
+validators.js
+**/[Ss]cripts/domhandler.js
+
+
+# Visual Studio 2015
+.vs/
+
+ApiClient
+Published
+chrome-win
+TestResults
+.idea
+launchSettings.json
+*.pdf
+*.zip
+**/appsettings.Development.json
