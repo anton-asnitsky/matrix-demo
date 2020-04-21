@@ -80,6 +80,16 @@ namespace TaskAPI.Services
             if (userTasks.Any()) {
                 _dataCotext.UserTasks.RemoveRange(userTasks);
             }
+            var userAssignments = await _dataCotext
+                .UserTasks
+                .SelectMany(t => t.Assignments)
+                .Where(a => a.UserId == userId)
+                .ToListAsync()
+            ;
+
+            if (userAssignments.Any()) {
+                _dataCotext.TaskAssignments.RemoveRange(userAssignments);
+            }
 
             _dataCotext.Users.Remove(userToRemove);
 

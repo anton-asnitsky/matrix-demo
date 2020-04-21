@@ -17,6 +17,7 @@ namespace TaskAPI.Data.Models
         public DateTime TargetDate { get; set; }
         [Required]
         public Priority Priority { get; set; }
+        [Required]
         public Boolean Done { get; set; }
        
         public ICollection<TaskAssignment> Assignments { get; set; }

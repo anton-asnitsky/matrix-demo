@@ -9,5 +9,9 @@ namespace TaskAPI.Services.Models.Outbound
     {
         [JsonProperty("task_id")]
         public Guid TaskId { get; set; }
+        [JsonProperty("users_assigned")]
+        public List<Guid> UsersAssigned { get; set; }
+        [JsonProperty("users_not_assigned")]
+        public List<Guid> UsersNotAssigned { get; set; }
     }
 }

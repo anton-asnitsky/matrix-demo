@@ -10,7 +10,7 @@ namespace TaskAPI.Services.Interfaces
     {
         Task<List<UserTask>> GetTasks();
         Task<UserTask> GetTask(Guid taskId);
-        Task CreateTask(UserTask task);
+        Task<(List<Guid> Assigned, List<Guid> NotAssigned)> CreateTask(UserTask task, List<Guid> assignTo);
         Task UpdateTask(Guid taskId, UpdateTask update);
         Task DeleteTask(Guid taskId);
     }

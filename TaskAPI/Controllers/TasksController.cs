@@ -55,16 +55,16 @@ namespace TaskAPI.Controllers
             var result = _requestValidator.Validate(request);
             if (!result.IsValid)
             {
-                {
-                    throw new InvalidValueException(result.Errors.Select(e => e.ErrorMessage).Distinct().ToArray());
-                }
+                throw new InvalidValueException(result.Errors.Select(e => e.ErrorMessage).Distinct().ToArray());
             }
 
             var task = _mapper.Map<UserTask>(request);
-            await _tasksService.CreateTask(task);
+            var (Assigned, NotAssigned) = await _tasksService.CreateTask(task, request.AssignTo);
 
             return Ok(new CreateTaskResponse() { 
-                TaskId = task.TaskId
+                TaskId = task.TaskId,
+                UsersAssigned = Assigned,
+                UsersNotAssigned = NotAssigned
             });
         }
 
@@ -75,9 +75,7 @@ namespace TaskAPI.Controllers
             var result = _requestValidator.Validate(request);
             if (!result.IsValid)
             {
-                {
-                    throw new InvalidValueException(result.Errors.Select(e => e.ErrorMessage).Distinct().ToArray());
-                }
+                throw new InvalidValueException(result.Errors.Select(e => e.ErrorMessage).Distinct().ToArray());
             }
 
             await _tasksService.UpdateTask(taskId, _mapper.Map<UpdateTask>(request));
