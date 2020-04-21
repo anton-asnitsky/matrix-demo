@@ -69,7 +69,13 @@ namespace TaskAPI.Services
                 return;
             }
 
-            var userTasks = await _dataCotext.UserTasks.Where(t => t.UserId == userId).ToArrayAsync();
+            var userTasks = await _dataCotext
+                .UserTasks
+                .SelectMany(t => t.Assignments)
+                .Where(a => a.UserId == userId)
+                .Select(a => a.Task)
+                .Distinct()
+                .ToArrayAsync();
 
             if (userTasks.Any()) {
                 _dataCotext.UserTasks.RemoveRange(userTasks);

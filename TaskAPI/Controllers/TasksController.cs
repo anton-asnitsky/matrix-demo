@@ -64,7 +64,7 @@ namespace TaskAPI.Controllers
             await _tasksService.CreateTask(task);
 
             return Ok(new CreateTaskResponse() { 
-                TaskId = task.Id
+                TaskId = task.TaskId
             });
         }
 

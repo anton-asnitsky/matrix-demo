@@ -61,7 +61,7 @@ namespace TaskAPI
                     .ForMember(m => m.Sex, dest => dest.MapFrom(o => (Sex)o.Sex))
                     .ForMember(m => m.JwtToken, dest => dest.MapFrom(o => string.Empty))
                     .ForMember(m => m.PasswordRecoveryToken, dest => dest.MapFrom(o => string.Empty))
-                    .ForMember(m => m.Tasks, dest => dest.MapFrom(o => new List<UserTask>()))
+                    .ForMember(m => m.Assignments, dest => dest.MapFrom(o => new List<TaskAssignment>()))
                 ;
 
                 cfg.CreateMap<UpdateUserRequest, UpdateUser>()

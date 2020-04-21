@@ -8,6 +8,21 @@ namespace TaskAPI.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Tasks",
+                columns: table => new
+                {
+                    TaskId = table.Column<Guid>(nullable: false),
+                    Name = table.Column<string>(maxLength: 255, nullable: false),
+                    TargetDate = table.Column<DateTime>(nullable: false),
+                    Priority = table.Column<int>(nullable: false),
+                    Done = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tasks", x => x.TaskId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -28,21 +43,23 @@ namespace TaskAPI.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Tasks",
+                name: "UsersToTasks",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
-                    Name = table.Column<string>(maxLength: 255, nullable: false),
-                    TargetDate = table.Column<DateTime>(nullable: false),
-                    Priority = table.Column<int>(nullable: false),
-                    Done = table.Column<bool>(nullable: false),
+                    TaskId = table.Column<Guid>(nullable: false),
                     UserId = table.Column<Guid>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Tasks", x => x.Id);
+                    table.PrimaryKey("PK_UsersToTasks", x => new { x.UserId, x.TaskId });
                     table.ForeignKey(
-                        name: "FK_Tasks_Users_UserId",
+                        name: "FK_UsersToTasks_Tasks_TaskId",
+                        column: x => x.TaskId,
+                        principalTable: "Tasks",
+                        principalColumn: "TaskId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UsersToTasks_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "UserId",
@@ -50,13 +67,16 @@ namespace TaskAPI.Data.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Tasks_UserId",
-                table: "Tasks",
-                column: "UserId");
+                name: "IX_UsersToTasks_TaskId",
+                table: "UsersToTasks",
+                column: "TaskId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "UsersToTasks");
+
             migrationBuilder.DropTable(
                 name: "Tasks");
 

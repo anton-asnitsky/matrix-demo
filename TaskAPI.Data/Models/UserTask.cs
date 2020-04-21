@@ -10,7 +10,7 @@ namespace TaskAPI.Data.Models
     {
         [Key]
         [Required]
-        public Guid Id { get; set; }
+        public Guid TaskId { get; set; }
         [Required, MaxLength(255)]
         public string Name { get; set; }
         [Required]
@@ -18,9 +18,7 @@ namespace TaskAPI.Data.Models
         [Required]
         public Priority Priority { get; set; }
         public Boolean Done { get; set; }
-
-        /** Used for creating relationship between Users and Tasks tables **/
-        public Guid UserId { get; set; }
-        public User User { get; set; }
+       
+        public ICollection<TaskAssignment> Assignments { get; set; }
     }
 }

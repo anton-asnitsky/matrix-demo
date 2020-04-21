@@ -14,13 +14,23 @@ namespace TaskAPI.Data.DataContexts
 
         public DbSet<User> Users { get; set; }
         public DbSet<UserTask> UserTasks { get; set; }
-
+        public DbSet<TaskAssignment> TaskAssignments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
 
-            builder.Entity<User>().ToTable("Users");
-            builder.Entity<UserTask>().ToTable("Tasks");
+            builder.Entity<User>()
+                .ToTable("Users")
+            ;
+
+            builder.Entity<UserTask>()
+                .ToTable("Tasks")
+            ;
+
+            builder.Entity<TaskAssignment>()
+                .ToTable("UsersToTasks")
+                .HasKey(a => new { a.UserId, a.TaskId })
+            ;
 
             base.OnModelCreating(builder);
         }

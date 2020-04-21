@@ -10,7 +10,7 @@ using TaskAPI.Data.DataContexts;
 namespace TaskAPI.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20200421091543_InitialCreate")]
+    [Migration("20200421111410_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -20,6 +20,21 @@ namespace TaskAPI.Data.Migrations
                 .HasAnnotation("ProductVersion", "3.1.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+            modelBuilder.Entity("TaskAPI.Data.Models.TaskAssignment", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TaskId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("UserId", "TaskId");
+
+                    b.HasIndex("TaskId");
+
+                    b.ToTable("UsersToTasks");
+                });
 
             modelBuilder.Entity("TaskAPI.Data.Models.User", b =>
                 {
@@ -72,7 +87,7 @@ namespace TaskAPI.Data.Migrations
 
             modelBuilder.Entity("TaskAPI.Data.Models.UserTask", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("TaskId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -90,20 +105,21 @@ namespace TaskAPI.Data.Migrations
                     b.Property<DateTime>("TargetDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
+                    b.HasKey("TaskId");
 
                     b.ToTable("Tasks");
                 });
 
-            modelBuilder.Entity("TaskAPI.Data.Models.UserTask", b =>
+            modelBuilder.Entity("TaskAPI.Data.Models.TaskAssignment", b =>
                 {
+                    b.HasOne("TaskAPI.Data.Models.UserTask", "Task")
+                        .WithMany("Assignments")
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("TaskAPI.Data.Models.User", "User")
-                        .WithMany("Tasks")
+                        .WithMany("Assignments")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
