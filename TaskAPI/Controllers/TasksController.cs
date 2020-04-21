@@ -103,6 +103,24 @@ namespace TaskAPI.Controllers
             return Ok();
         }
 
+        [HttpPut("{id}/assign-users")]
+        [Authorize]
+        public async Task<IActionResult> AssignUsers(Guid taskId, [FromBody]AssignTaskRequest request)
+        {
+            var result = _requestValidator.Validate(request);
+            if (!result.IsValid)
+            {
+                throw new InvalidValueException(result.Errors.Select(e => e.ErrorMessage).Distinct().ToArray());
+            }
+
+            var (Assigned, NotAssigned) = await _tasksService.AssignUsers(taskId, request.UsersToAssign, request.UsersToUnssign);
+            return Ok(new AssignTaskResponse()
+            {
+                UsersAssigned = Assigned,
+                UsersNotAssigned = NotAssigned
+            });
+        }
+
         [HttpDelete("{id}")]
         [Authorize]
         public async Task<IActionResult> DeleteTask(Guid taskId)

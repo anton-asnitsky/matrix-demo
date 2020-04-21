@@ -27,6 +27,62 @@ namespace TaskAPI.Services
             _mailer = mailer;
         }
 
+        public async Task<(List<Guid> Assigned, List<Guid> NotAssigned)> AssignUsers(
+            Guid taskId, 
+            List<Guid> usersToAssign, 
+            List<Guid> usersToUnassign
+        ) {
+            var nonExistingUsers = new List<Guid>();
+            var usersToInform = new List<User>();
+
+            var task = await _dataContext.UserTasks.FindAsync(taskId);
+
+            if (task == null)
+                throw new NotFoundException(new[] { "Task not found." });
+
+            usersToUnassign.ForEach(async uid => {
+                var user = await _dataContext.Users.FindAsync(uid);
+                if (user == null)
+                {
+                    return;
+                }
+
+                var assigmentsToRemove = task.Assignments.Where(a => a.UserId == uid).ToList();
+
+                assigmentsToRemove.ForEach(a => {
+                    task.Assignments.Remove(a);
+                });
+            });
+
+            usersToAssign.ForEach(async uid => {
+                var user = await _dataContext.Users.FindAsync(uid);
+                if (user == null)
+                {
+                    nonExistingUsers.Add(uid);
+                    return;
+                }
+
+                if (task.Assignments.Where(a => a.UserId == uid).Any()) {
+                    return;
+                }
+
+                usersToInform.Add(user);
+                task.Assignments.Add(new TaskAssignment()
+                {
+                    UserId = uid,
+                    TaskId = task.TaskId
+                });
+            });
+
+            await _dataContext.SaveChangesAsync();
+
+            usersToInform.ForEach(async u => {
+                await _mailer.SendUserTasks(u.Email, $"{u.FirstName} {u.LastName}", new List<UserTask>() { task });
+            });
+
+            return (usersToAssign.Except(nonExistingUsers).ToList(), nonExistingUsers);
+        }
+
         public async Task<(List<Guid> Assigned, List<Guid> NotAssigned)> CreateTask(UserTask task, List<Guid> assignTo)
         {
             var nonExistingUsers = new List<Guid>();
