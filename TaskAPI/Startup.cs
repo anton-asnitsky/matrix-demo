@@ -81,9 +81,19 @@ namespace TaskAPI
                     .ForMember(m => m.Assignments, dest => dest.MapFrom(o => new List<TaskAssignment>()))
                 ;
 
-                cfg.CreateMap<UpdateUserRequest, UpdateTask>();
+                cfg.CreateMap<UpdateTaskRequest, UpdateTask>()
+                    .ForMember(m => m.Name, dest => dest.MapFrom(o => o.Name))
+                    .ForMember(m => m.TargetDate, dest => dest.MapFrom(o => o.TargetDate))
+                    .ForMember(m => m.Priority, dest => dest.MapFrom(o => (Priority)o.Priority))
+                ;
 
-                cfg.CreateMap<UserTask, GetTaskResponse>();
+                cfg.CreateMap<UserTask, GetTaskResponse>()
+                    .ForMember(m => m.Name, dest => dest.MapFrom(o => o.Name))
+                    .ForMember(m => m.TargetDate, dest => dest.MapFrom(o => o.TargetDate))
+                    .ForMember(m => m.Priority, dest => dest.MapFrom(o => (int)o.Priority))
+                    .ForMember(m => m.Done, dest => dest.MapFrom(o => o.Done))
+                    .ForMember(m => m.UsersAssigned, dest => dest.MapFrom(o => o.Assignments.Select(a => a.User).ToList()))
+                ;
 
             });
 
