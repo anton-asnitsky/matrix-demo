@@ -13,5 +13,6 @@ namespace TaskAPI.Services.Interfaces
         Task<(List<Guid> Assigned, List<Guid> NotAssigned)> CreateTask(UserTask task, List<Guid> assignTo);
         Task UpdateTask(Guid taskId, UpdateTask update);
         Task DeleteTask(Guid taskId);
+        Task<List<UserTask>> GetTasksByEmail(string email);
     }
 }

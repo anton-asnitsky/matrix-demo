@@ -23,6 +23,7 @@ namespace TaskAPI.Services.Validators
                 { typeof(UpdateUserRequest), new UpdateUserRequestValidator() },
                 { typeof(CreateTaskRequest), new CreateTaskRequestValidator() },
                 { typeof(UpdateTaskRequest), new UpdateTaskRequestValidator() },
+                { typeof(GetUserTasksRequest), new GetUserTasksRequestValidator() },
             };
         }
 

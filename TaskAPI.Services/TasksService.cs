@@ -96,6 +96,25 @@ namespace TaskAPI.Services
             return tasks;
         }
 
+        public async Task<List<UserTask>> GetTasksByEmail(string email)
+        {
+            var user = await _dataContext.Users.Where(u => u.Email == email).SingleOrDefaultAsync();
+
+            if (user == null)
+            {
+                throw new NotFoundException(new[] { "User not found." });
+            }
+
+            var tasks = await _dataContext
+                .UserTasks
+                .Where(t => t.Assignments.Where(a => a.UserId == user.UserId).Any())
+                .OrderByDescending(t => t.TargetDate)
+                .ToListAsync()
+            ;
+
+            return tasks;
+        }
+
         public async Task UpdateTask(Guid taskId, UpdateTask update)
         {
             var task = await _dataContext.UserTasks.FindAsync(taskId);

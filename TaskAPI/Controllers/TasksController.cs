@@ -39,6 +39,27 @@ namespace TaskAPI.Controllers
             return Ok(_mapper.Map<GetTaskResponse>(tasks));
         }
 
+        /**
+         * Since input data for this request strunctired 
+         * and need to be validated
+         * I decided to use POST method
+         * despite usual CRUD usage
+         **/
+        [HttpPost("user-tasks")]
+        [Authorize]
+        public async Task<IActionResult> GetUserTasks([FromBody] GetUserTasksRequest request)
+        {
+            var result = _requestValidator.Validate(request);
+            if (!result.IsValid)
+            {
+                throw new InvalidValueException(result.Errors.Select(e => e.ErrorMessage).Distinct().ToArray());
+            }
+
+            var tasks = await _tasksService.GetTasksByEmail(request.Email);
+
+            return Ok(_mapper.Map<GetTaskResponse>(tasks));
+        }
+
         [HttpGet("{id}")]
         [Authorize]
         public async Task<IActionResult> GetTask(Guid taskId)
