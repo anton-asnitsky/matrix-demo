@@ -6,7 +6,7 @@ using TaskAPI.Services.Models.Inbound;
 
 namespace TaskAPI.Services.Validators
 {
-    class GetUserTasksRequestValidator : AbstractValidator<GetUserTasksRequest>
+    public class GetUserTasksRequestValidator : AbstractValidator<GetUserTasksRequest>
     {
         public GetUserTasksRequestValidator()
         {
