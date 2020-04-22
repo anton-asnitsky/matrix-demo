@@ -16,6 +16,7 @@ using TaskAPI.Services.Models.Outbound;
 namespace TaskAPI.Controllers
 {
     [Route("api/[controller]")]
+    [ApiController]
     public class UsersController : Controller
     {
         private readonly IUsersService _usersService;
@@ -38,12 +39,12 @@ namespace TaskAPI.Controllers
         {
             var users = await _usersService.GetUsers();
 
-            return Ok(_mapper.Map<GetUserResponse>(users));
+            return Ok(_mapper.Map<List<GetUserResponse>>(users));
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{userId}")]
         [Authorize]
-        public async Task<IActionResult> GetUser(Guid userId)
+        public async Task<IActionResult> GetUser([FromRoute]Guid userId)
         {
             var user = await _usersService.GetUser(userId);
 
@@ -69,9 +70,9 @@ namespace TaskAPI.Controllers
             });
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{userId}")]
         [Authorize]
-        public async Task<IActionResult> UpdateUser(Guid userId, [FromBody]UpdateUserRequest request)
+        public async Task<IActionResult> UpdateUser([FromRoute]Guid userId, [FromBody]UpdateUserRequest request)
         {
             var result = _requestValidator.Validate(request);
             if (!result.IsValid)
@@ -86,9 +87,9 @@ namespace TaskAPI.Controllers
             return Ok();
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{userId}")]
         [Authorize]
-        public async Task<IActionResult> DeleteUser(Guid userId)
+        public async Task<IActionResult> DeleteUser([FromRoute]Guid userId)
         {
             await _usersService.DeleteUser(userId);
 

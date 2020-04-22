@@ -18,16 +18,14 @@ using TaskAPI.Identity.Configuration;
 using TaskAPI.Identity.Providers;
 using Newtonsoft.Json.Serialization;
 using TaskAPI.Common.Middlewares;
+using NLog.Extensions.Logging;
 
 namespace TaskAPI.Identity
 {
     public class Startup
     {
-        private readonly ILogger<Startup> _logger;
-
-        public Startup(IConfiguration configuration, ILogger<Startup> logger)
+        public Startup(IConfiguration configuration)
         {
-            _logger = logger;
             Configuration = configuration;
         }
 
@@ -36,6 +34,8 @@ namespace TaskAPI.Identity
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            NLog.LogManager.Configuration = new NLogLoggingConfiguration(Configuration.GetSection("NLog"));
+
             services.AddHealthChecks();
             services.AddHttpClient();
             services.AddDbContext<DataContext>(options => options.UseSqlServer(Configuration.GetConnectionString("TaskAPI")));
@@ -44,6 +44,7 @@ namespace TaskAPI.Identity
             Configuration.Bind("IdentityServer", identityServerOptions);
 
             var certificatePath = Path.Combine(Directory.GetCurrentDirectory(), identityServerOptions.CertFolder, identityServerOptions.CertFile);
+            Console.WriteLine(certificatePath);
 
             services.AddIdentityServer()
                 .AddInMemoryIdentityResources(IdentityServerConfiguration.GetIdentityResources())
@@ -51,7 +52,9 @@ namespace TaskAPI.Identity
                 .AddInMemoryClients(IdentityServerConfiguration.GetClients(identityServerOptions.ClientId, identityServerOptions.ClientSecret))
                 .AddResourceOwnerValidator<CustomResourceOwnerPasswordValidator>()
                 .AddProfileService<CustomProfileService>()
-                .AddSigningCredential(new X509Certificate2(certificatePath, identityServerOptions.CertPassword));
+                .AddDeveloperSigningCredential()
+                /** .AddSigningCredential(new X509Certificate2(certificatePath, identityServerOptions.CertPassword)) **/
+            ;
 
             services.AddMvcCore().AddApiExplorer();
 
@@ -78,14 +81,7 @@ namespace TaskAPI.Identity
 
             app.UseMiddleware<RequestMiddleware>();
 
-            app.UseRouting();
-
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+            app.UseIdentityServer();
         }
     }
 }

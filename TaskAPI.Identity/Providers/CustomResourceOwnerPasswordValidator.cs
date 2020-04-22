@@ -7,6 +7,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using TaskAPI.Common;
+using TaskAPI.Common.Identity;
 using TaskAPI.Data.DataContexts;
 using TaskAPI.Data.Models;
 using TaskAPI.Identity.Configuration;

@@ -11,7 +11,7 @@ using TaskAPI.Common.Exceptions;
 using TaskAPI.Data.DataContexts;
 using TaskAPI.Services.Interfaces;
 using TaskAPI.Services.Models.Inbound;
-using TokenResponse = IdentityModel.Client.TokenResponse;
+using TaskAPI.Services.Models.Outbound;
 
 namespace TaskAPI.Services
 {

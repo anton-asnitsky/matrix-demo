@@ -3,16 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Serialization;
+using NLog.Extensions.Logging;
+using TaskAPI.Common;
 using TaskAPI.Common.Enums;
+using TaskAPI.Common.Identity;
 using TaskAPI.Common.Middlewares;
 using TaskAPI.Common.Options; 
 using TaskAPI.Data.DataContexts;
@@ -39,6 +45,10 @@ namespace TaskAPI
             services.Configure<MailerOptions>(Configuration.GetSection("Mailer"));
             services.AddTransient<IMailer, Mailer>();
 
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+            NLog.LogManager.Configuration = new NLogLoggingConfiguration(Configuration.GetSection("NLog"));
+
             var config = new MapperConfiguration(cfg =>
             {
                 cfg.CreateMap<User, GetUserResponse>()
@@ -51,7 +61,7 @@ namespace TaskAPI
 
                 cfg.CreateMap<CreateUserRequest, User>()
                     .ForMember(m => m.UserId, dest => dest.MapFrom(o => Guid.NewGuid()))
-                    .ForMember(m => m.Password, dest => dest.MapFrom(o => o.Password))
+                    .ForMember(m => m.Password, dest => dest.MapFrom(o => Utils.PasswordToHash(o.Password)))
                     .ForMember(m => m.Email, dest => dest.MapFrom(o => o.Email))
                     .ForMember(m => m.FirstName, dest => dest.MapFrom(o => o.FirstName))
                     .ForMember(m => m.LastName, dest => dest.MapFrom(o => o.LastName))
@@ -113,6 +123,8 @@ namespace TaskAPI
             services.AddTransient<IUsersService, UsersService>();
             services.AddTransient<ITasksService, TasksService>();
 
+            services.AddTransient<IAuthorizationHandler, AccountAuthorizationHandler>();
+
             services.Add(new ServiceDescriptor(typeof(IDataValidator), typeof(UserDataValidator), ServiceLifetime.Transient));
             services.Add(new ServiceDescriptor(typeof(IDataValidator), typeof(TaskDataValidator), ServiceLifetime.Transient));
             services.AddTransient<ICompositeDataValidator, CompositeDataValidator>();
@@ -129,7 +141,28 @@ namespace TaskAPI
                     options.Audience = "api1";
                 });
 
-            services.AddControllers();
+            services
+                .AddMvcCore(options =>
+                {
+                    options.Filters.Add(new AuthorizeFilter("Account"));
+                })
+                .AddAuthorization(opt => {
+                    opt.AddPolicy("Account", p => p.AddRequirements(new AccountAuthorizationRequirement()));
+                })
+                .AddApiExplorer()
+            ;
+
+            services
+                .AddControllers()
+                .AddNewtonsoftJson(options =>
+                {
+                    options.SerializerSettings.ContractResolver = new DefaultContractResolver
+                    {
+                        NamingStrategy = new SnakeCaseNamingStrategy()
+                    };
+                })
+                
+            ;
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -141,6 +174,7 @@ namespace TaskAPI
 
             app.UseMiddleware<RequestMiddleware>();
             app.UseRouting();
+            app.UseAuthentication();
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {

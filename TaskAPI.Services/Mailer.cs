@@ -10,6 +10,7 @@ using TaskAPI.Common.Enums;
 using TaskAPI.Common.Options;
 using TaskAPI.Data.Models;
 using TaskAPI.Services.Interfaces;
+using MimeKit;
 
 namespace TaskAPI.Services
 {
@@ -23,55 +24,48 @@ namespace TaskAPI.Services
 
         public async Task SendAccountCreated(string email, string fullname)
         {
-            var mailClient = GetSmtpClient(_mailerOptions);
             var message = ComposeMessage(
                 $"TaskAPI - Account for {fullname} was created.",
                 email,
                 $"{fullname} hello, your account for TaskAPI was successfully created."
             );
 
-            await mailClient.SendMailAsync(message);
+            await Send(message);
         }
 
         public async Task SendPasswordChanged(string email, string fullname)
         {
-            var mailClient = GetSmtpClient(_mailerOptions);
             var message = ComposeMessage(
                 $"TaskAPI - Password for account {email} was changed.",
                 email,
                 $"{fullname} hello, your account password TaskAPI was successfully changed."
             );
 
-            await mailClient.SendMailAsync(message);
+            await Send(message);
         }
 
         public async Task SendRecoverPassword(string email, string fullname, string token)
         {
-            var mailClient = GetSmtpClient(_mailerOptions);
             var message = ComposeMessage(
                 $"TaskAPI - Password recovery request for {email}.",
                 email,
                 $"{fullname} hello, TaskAPI created token for ypur password resovery request: {token}."
             );
 
-            await mailClient.SendMailAsync(message);
+            await Send(message);
         }
 
         private static string GetPriorityString(Priority priority) {
-            switch (priority)
+            return priority switch
             {
-                case Priority.High:
-                    return "High priority";
-                case Priority.Medium:
-                    return "Medium priority";
-                default:
-                    return "Low priority";
-            }
+                Priority.High => "High priority",
+                Priority.Medium => "Medium priority",
+                _ => "Low priority",
+            };
         }
 
         public async Task SendUserTasks(string email, string fullname, IEnumerable<UserTask> tasks)
         {
-            var mailClient = GetSmtpClient(_mailerOptions);
             var taskList = tasks
                 .OrderByDescending(t => t.TargetDate)
                 .Select(t => $"{t.Name}({GetPriorityString(t.Priority)}) should be completed by {t.TargetDate:YYYY-MM-dd}")
@@ -84,31 +78,32 @@ namespace TaskAPI.Services
                 $"{fullname} hello, tasks was shared with you: <br /> {string.Join("<br />", taskList)}."
             );
 
-            await mailClient.SendMailAsync(message);
+            await Send(message);
         }
 
-        private static SmtpClient GetSmtpClient(MailerOptions config) {
-            var client = new SmtpClient(config.SmtpServer, config.Port)
-            {
-                Credentials = new NetworkCredential(config.Username, config.Password)
-            };
+        private async Task Send(MimeMessage message) {
+            using var client = new MailKit.Net.Smtp.SmtpClient();
+            client.Connect(_mailerOptions.SmtpServer, _mailerOptions.SmtpPort, _mailerOptions.EnableSsl);
+            client.Authenticate(_mailerOptions.SmtpUsername, _mailerOptions.SmtpPassword);
 
-            return client;
+            await client.SendAsync(message);
+            client.Disconnect(true);
         }
 
-        private MailMessage ComposeMessage(string subject, string to, string body)
+        private MimeMessage ComposeMessage(string subject, string to, string body)
         {
-            var mailMessage = new MailMessage
-            {
-                From = new MailAddress(_mailerOptions.From),
-                BodyEncoding = Encoding.UTF8,
-                Body = body,
-                Subject = subject,
-                IsBodyHtml = true
-            };
-            mailMessage.To.Add(to);
+            var mimeMessage = new MimeMessage();
+            mimeMessage.From.Add(new MailboxAddress("", _mailerOptions.FromAddress));
+            mimeMessage.To.Add(new MailboxAddress(to));
+            mimeMessage.Subject = subject;
 
-            return mailMessage;
+            var bodyBuilder = new MimeKit.BodyBuilder {
+                HtmlBody = body
+            };
+
+            mimeMessage.Body = bodyBuilder.ToMessageBody();
+
+            return mimeMessage;
         }
     }
 }

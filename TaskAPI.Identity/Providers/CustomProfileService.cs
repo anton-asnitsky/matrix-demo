@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using TaskAPI.Common.Identity;
 using TaskAPI.Identity.Configuration;
 
 namespace TaskAPI.Identity.Providers

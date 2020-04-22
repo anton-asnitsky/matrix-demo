@@ -1,0 +1,32 @@
+@base_url=http://localhost:5000/api
+
+### Login user
+POST {{base_url}}/login
+Accept: application/json
+Content-Type: application/json
+
+{
+    "email": "anton.asnitsky@gmail.com",
+    "password": "P@$$w0rD"
+}
+
+@given_access_token=eyJhbGciOiJSUzI1NiIsImtpZCI6IjgzT3Jxb0FhZnRWMy0teEk2a0JiR2ciLCJ0eXAiOiJhdCtqd3QifQ.eyJuYmYiOjE1ODc1NjU3MjYsImV4cCI6MTU4NzY1MjEyNiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo1MDAxIiwiYXVkIjoiYXBpMSIsImNsaWVudF9pZCI6IlRhc2tBUEkiLCJzdWIiOiIiLCJhdXRoX3RpbWUiOjE1ODc1NjU3MjYsImlkcCI6ImxvY2FsIiwidXNlcl9pZCI6IjJlNGYzYmE0LWZhNDktNDJjZi1iMTU1LWNlN2RhYmZkYzM1NiIsInVzZXJfZW1haWwiOiJhbnRvbi5hc25pdHNreUBnbWFpbC5jb20iLCJmaXJzdF9uYW1lIjoiQW50b24iLCJzdXJfbmFtZSI6IkFzbml0c2t5Iiwic2NvcGUiOlsiYXBpMSIsIm9mZmxpbmVfYWNjZXNzIl0sImFtciI6WyJwd2QiXX0.uu2q3Fu8R6fypkfKecX506ToJG7Y3ogBw5CdIf8A4BTKRhCwSjgoAsVW2O-BYIWWNSorIc-9c3DypY3eRe5H5yr8JtytDsVnx8Z1WwhkgOSoRwoWUb1O69Sf_glIrTUt_8oCWtvr5giwe45wTSgCJNYniXXlVnwq55xme3wm9RgNdsZVoVL9NWPllkr4HywjPvsIP3ucCgLVDz3JxRtEa1JZkrhQAk78uwV7ScUf_vCrmrUB4xce9eO951uOtMs1U7hu4c9a-mRpEKs1KYVC8q1hVzqJwAwudfem5xZ2M-FKRCLvJBqyBAx6rnDIdx2sxlc_kTJzmifM9CBf8v4AQQ
+
+### Rcover user password
+POST {{base_url}}/login/recover-password
+Accept: application/json
+Content-Type: application/json
+
+{
+    "email": "anton.asnitsky@gmail.com"
+}
+
+### Cjange user password
+POST {{base_url}}/login/reset-password
+Accept: application/json
+Content-Type: application/json
+
+{
+    "token": "zJhhU0UPNkiyDE90_lOIrQ",
+    "password": "32oTaToT!32oTaToT!"
+}

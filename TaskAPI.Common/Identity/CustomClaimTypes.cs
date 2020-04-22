@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace TaskAPI.Identity.Configuration
+namespace TaskAPI.Common.Identity
 {
     public static class CustomClaimTypes
     {

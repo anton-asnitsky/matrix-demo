@@ -24,7 +24,8 @@ namespace TaskAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            return Ok(await _loginService.Login(request));
+            var tokenTrsponse = await _loginService.Login(request);
+            return Ok(tokenTrsponse);
         }
 
         [AllowAnonymous]

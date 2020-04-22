@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TaskAPI.Common.Exceptions;
 using TaskAPI.Data.Models;
@@ -19,15 +20,18 @@ namespace TaskAPI.Controllers
         private readonly ITasksService _tasksService;
         private readonly IMapper _mapper;
         private readonly IRequestValidator _requestValidator;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public TasksController(
             ITasksService tasksService,
             IMapper mapper,
-            IRequestValidator requestValidator
+            IRequestValidator requestValidator,
+            IHttpContextAccessor httpContextAccessor
         ) {
             _mapper = mapper;
             _requestValidator = requestValidator;
             _tasksService = tasksService;
+            _httpContextAccessor = httpContextAccessor;
         } 
 
         [HttpGet]
@@ -60,9 +64,9 @@ namespace TaskAPI.Controllers
             return Ok(_mapper.Map<GetTaskResponse>(tasks));
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{taskId}")]
         [Authorize]
-        public async Task<IActionResult> GetTask(Guid taskId)
+        public async Task<IActionResult> GetTask([FromRoute]Guid taskId)
         {
             var task = await _tasksService.GetTask(taskId);
 
@@ -89,9 +93,9 @@ namespace TaskAPI.Controllers
             });
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{taskId}")]
         [Authorize]
-        public async Task<IActionResult> UpdateTask(Guid taskId, [FromBody]UpdateTaskRequest request)
+        public async Task<IActionResult> UpdateTask([FromRoute]Guid taskId, [FromBody]UpdateTaskRequest request)
         {
             var result = _requestValidator.Validate(request);
             if (!result.IsValid)
@@ -103,9 +107,9 @@ namespace TaskAPI.Controllers
             return Ok();
         }
 
-        [HttpPut("{id}/assign-users")]
+        [HttpPut("{taskId}/assign-users")]
         [Authorize]
-        public async Task<IActionResult> AssignUsers(Guid taskId, [FromBody]AssignTaskRequest request)
+        public async Task<IActionResult> AssignUsers([FromRoute]Guid taskId, [FromBody]AssignTaskRequest request)
         {
             var result = _requestValidator.Validate(request);
             if (!result.IsValid)
@@ -121,18 +125,18 @@ namespace TaskAPI.Controllers
             });
         }
 
-        [HttpPut("{id}/complete")]
+        [HttpPut("{taskId}/complete")]
         [Authorize]
-        public async Task<IActionResult> CompleteTask(Guid taskId)
+        public async Task<IActionResult> CompleteTask([FromRoute]Guid taskId)
         {
 
             await _tasksService.CompleteTask(taskId);
             return Ok();
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{taskId}")]
         [Authorize]
-        public async Task<IActionResult> DeleteTask(Guid taskId)
+        public async Task<IActionResult> DeleteTask([FromRoute]Guid taskId)
         {
             await _tasksService.DeleteTask(taskId);
 

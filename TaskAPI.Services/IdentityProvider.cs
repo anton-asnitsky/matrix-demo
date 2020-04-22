@@ -1,7 +1,9 @@
 ﻿using IdentityModel.Client;
 using IdentityServer4;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -9,6 +11,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using TaskAPI.Common.Exceptions;
+using TaskAPI.Common.Logging;
 using TaskAPI.Common.Options;
 using TaskAPI.Services.Interfaces;
 using TaskAPI.Services.Models.Inbound;
@@ -20,31 +23,45 @@ namespace TaskAPI.Services
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IdentityServerOptions _identityServerOptions;
+        private readonly ILogger<IdentityProvider> _logger;
 
         public IdentityProvider(
             IHttpClientFactory httpClientFactory, 
-            IOptions<IdentityServerOptions> options
+            IOptions<IdentityServerOptions> options,
+            ILogger<IdentityProvider> logger
         ) {
             _httpClientFactory = httpClientFactory;
             _identityServerOptions = options.Value;
+            _logger = logger;
         }
 
         private async Task<(HttpClient client, string endpoint)> SetupClient()
         {
-            var client = _httpClientFactory.CreateClient();
-            var discovery = await client.GetDiscoveryDocumentAsync(new DiscoveryDocumentRequest
+            HttpClient client;
+
+            try
             {
-                Address = _identityServerOptions.Host,
-                Policy = new DiscoveryPolicy
+                client = _httpClientFactory.CreateClient();
+                var discovery = await client.GetDiscoveryDocumentAsync(new DiscoveryDocumentRequest
                 {
-                    RequireHttps = false
-                }
-            });
+                    Address = _identityServerOptions.Host,
+                    Policy = new DiscoveryPolicy
+                    {
+                        RequireHttps = false
+                    }
+                });
 
-            if (discovery.IsError)
-                throw new Exception(discovery.Error);
+                if (discovery.IsError)
+                    throw new Exception(discovery.Error);
 
-            return (client, discovery.TokenEndpoint);
+                return (client, discovery.TokenEndpoint);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(new LogEntry($"Error occured during endpoint discovery: {ex.Message}").ToString());
+            }
+
+            return (null, null);
         }
 
         public async Task<TokenResponse> RequestPasswordTokenAsync(LoginRequest request)
@@ -61,6 +78,7 @@ namespace TaskAPI.Services
                 UserName = request.Email,
                 Password = request.Password
             });
+
             return token;
         }
 
