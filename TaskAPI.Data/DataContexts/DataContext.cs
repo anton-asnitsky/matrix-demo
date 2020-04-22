@@ -12,8 +12,8 @@ namespace TaskAPI.Data.DataContexts
         { }
 
 
-        public DbSet<User> Users { get; set; }
-        public DbSet<UserTask> UserTasks { get; set; }
+        public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<UserTask> UserTasks { get; set; }
         public DbSet<TaskAssignment> TaskAssignments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)

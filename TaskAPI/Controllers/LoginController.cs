@@ -12,11 +12,11 @@ namespace TaskAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SigninController : ControllerBase
+    public class LoginController : ControllerBase
     {
         private readonly ILoginService _loginService;
 
-        public SigninController(ILoginService loginService) {
+        public LoginController(ILoginService loginService) {
             _loginService = loginService;
         }
 
