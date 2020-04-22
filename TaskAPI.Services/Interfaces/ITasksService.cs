@@ -16,5 +16,6 @@ namespace TaskAPI.Services.Interfaces
         Task DeleteTask(Guid taskId);
         Task<List<UserTask>> GetTasksByEmail(string email);
         Task CompleteTask(Guid taskId);
+        Task GetTasksByUserId(Guid userId);
     }
 }

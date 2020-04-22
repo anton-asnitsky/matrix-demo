@@ -20,6 +20,6 @@ namespace TaskAPI.Data.Models
         [Required]
         public Boolean Done { get; set; }
        
-        public ICollection<TaskAssignment> Assignments { get; set; }
+        public virtual ICollection<TaskAssignment> Assignments { get; set; }
     }
 }

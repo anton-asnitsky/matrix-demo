@@ -68,15 +68,23 @@ namespace TaskAPI.Services
         {
             var taskList = tasks
                 .OrderByDescending(t => t.TargetDate)
-                .Select(t => $"{t.Name}({GetPriorityString(t.Priority)}) should be completed by {t.TargetDate:YYYY-MM-dd}")
+                .Select(t => $"{t.Name}({GetPriorityString(t.Priority)}) should be completed by {t.TargetDate:yyyy-MM-dd}")
                 .ToArray()
             ;
 
-            var message = ComposeMessage(
-                $"TaskAPI - Tasks for {email}.",
-                email,
-                $"{fullname} hello, tasks was shared with you: <br /> {string.Join("<br />", taskList)}."
-            );
+            var message = tasks.Any() 
+                ? ComposeMessage(
+                    $"TaskAPI - Tasks for {email}.",
+                    email,
+                    $"{fullname} hello, tasks was shared with you: <br /> {string.Join("<br />", taskList)}."
+                )
+                : ComposeMessage(
+                    $"TaskAPI - Tasks for {email}.",
+                    email,
+                    $"{fullname} hello, there is no tasks shared with you."
+                )
+            ;
+            
 
             await Send(message);
         }

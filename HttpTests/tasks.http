@@ -1,0 +1,93 @@
+@base_url=http://localhost:5000/api
+
+### Token an userIs
+@given_user_id=2e4f3ba4-fa49-42cf-b155-ce7dabfdc356
+@givent_user_id2=0e28311f-7451-4eaa-88c2-d2f53000bcdb
+@given_access_token=eyJhbGciOiJSUzI1NiIsImtpZCI6IjgzT3Jxb0FhZnRWMy0teEk2a0JiR2ciLCJ0eXAiOiJhdCtqd3QifQ.eyJuYmYiOjE1ODc1NjU3MjYsImV4cCI6MTU4NzY1MjEyNiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo1MDAxIiwiYXVkIjoiYXBpMSIsImNsaWVudF9pZCI6IlRhc2tBUEkiLCJzdWIiOiIiLCJhdXRoX3RpbWUiOjE1ODc1NjU3MjYsImlkcCI6ImxvY2FsIiwidXNlcl9pZCI6IjJlNGYzYmE0LWZhNDktNDJjZi1iMTU1LWNlN2RhYmZkYzM1NiIsInVzZXJfZW1haWwiOiJhbnRvbi5hc25pdHNreUBnbWFpbC5jb20iLCJmaXJzdF9uYW1lIjoiQW50b24iLCJzdXJfbmFtZSI6IkFzbml0c2t5Iiwic2NvcGUiOlsiYXBpMSIsIm9mZmxpbmVfYWNjZXNzIl0sImFtciI6WyJwd2QiXX0.uu2q3Fu8R6fypkfKecX506ToJG7Y3ogBw5CdIf8A4BTKRhCwSjgoAsVW2O-BYIWWNSorIc-9c3DypY3eRe5H5yr8JtytDsVnx8Z1WwhkgOSoRwoWUb1O69Sf_glIrTUt_8oCWtvr5giwe45wTSgCJNYniXXlVnwq55xme3wm9RgNdsZVoVL9NWPllkr4HywjPvsIP3ucCgLVDz3JxRtEa1JZkrhQAk78uwV7ScUf_vCrmrUB4xce9eO951uOtMs1U7hu4c9a-mRpEKs1KYVC8q1hVzqJwAwudfem5xZ2M-FKRCLvJBqyBAx6rnDIdx2sxlc_kTJzmifM9CBf8v4AQQ
+
+
+### Add new task
+POST {{base_url}}/tasks
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{given_access_token}}
+
+{
+    "name": "Task 5",
+    "target_date": "2020-05-27 23:59:59",
+    "priority": 3,
+    "assign_to": [
+        "{{given_user_id}}"
+    ]
+}
+
+###
+@created_task_id=771f9707-22b8-42d3-a306-bb33d15acf33
+@created_task_id2=e2582783-0b29-4eaf-ab9c-6ce19cde02e8
+
+### Update task
+PUT {{base_url}}/tasks/{{created_task_id}}
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{given_access_token}}
+
+{
+    "name": "Task 1(updated)",
+    "target_date": "2020-05-23 23:59:59",
+    "priority": 2
+}
+
+### Reassign task
+PUT {{base_url}}/tasks/{{created_task_id}}/assign-users
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{given_access_token}}
+
+{
+    "users_to_assign": [
+        "{{givent_user_id2}}"
+    ],
+    "users_to_unassign": [
+        "{{given_user_id}}"
+    ]
+}
+
+### Complete task
+PUT {{base_url}}/tasks/{{created_task_id}}/complete
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{given_access_token}}
+
+### Delete task
+DELETE {{base_url}}/tasks/{{created_task_id}}
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{given_access_token}}
+
+### Get tasks by email
+POST {{base_url}}/tasks/user-tasks
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{given_access_token}}
+
+{
+    "email": "anton.asnitsky@gmail.com"
+}
+
+### Get all tasks
+GET {{base_url}}/tasks
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{given_access_token}}
+
+### Get single task
+GET {{base_url}}/tasks/{{created_task_id2}}
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{given_access_token}}
+
+### Send tasks to user
+GET {{base_url}}/tasks/send-me-my-tasks
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{given_access_token}}

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TaskAPI.Common.Exceptions;
+using TaskAPI.Common.Identity;
 using TaskAPI.Data.Models;
 using TaskAPI.Services.Interfaces;
 using TaskAPI.Services.Models.Inbound;
@@ -40,7 +41,7 @@ namespace TaskAPI.Controllers
         {
             var tasks = await _tasksService.GetTasks();
 
-            return Ok(_mapper.Map<GetTaskResponse>(tasks));
+            return Ok(_mapper.Map<List<GetTaskResponse>>(tasks));
         }
 
         /**
@@ -61,7 +62,17 @@ namespace TaskAPI.Controllers
 
             var tasks = await _tasksService.GetTasksByEmail(request.Email);
 
-            return Ok(_mapper.Map<GetTaskResponse>(tasks));
+            return Ok(_mapper.Map<List<GetTaskResponse>>(tasks));
+        }
+
+        [HttpGet("send-me-my-tasks")]
+        [Authorize]
+        public async Task<IActionResult> SendTasksAssignedToUser()
+        {
+            var userId = _httpContextAccessor.GetUserId();
+            await _tasksService.GetTasksByUserId(userId);
+
+            return Ok();
         }
 
         [HttpGet("{taskId}")]

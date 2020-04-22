@@ -27,6 +27,22 @@ namespace TaskAPI.Services
             _mailer = mailer;
         }
 
+        public async Task GetTasksByUserId(Guid userId) {
+            var user = await _dataContext.Users.FindAsync(userId);
+
+            if (user == null) {
+                throw new NotFoundException(new[] { "User not found." });
+            }
+
+            var tasks = await _dataContext.UserTasks
+                .Where(t => t.Assignments.Select(a => a.UserId == userId).Any())
+                .OrderByDescending(t => t.TargetDate)
+                .ToListAsync()
+            ;
+
+            await _mailer.SendUserTasks(user.Email, $"{user.FirstName} {user.LastName}", tasks);
+        }
+
         public async Task<(List<Guid> Assigned, List<Guid> NotAssigned)> AssignUsers(
             Guid taskId, 
             List<Guid> usersToAssign, 
@@ -40,45 +56,48 @@ namespace TaskAPI.Services
             if (task == null)
                 throw new NotFoundException(new[] { "Task not found." });
 
-            usersToUnassign.ForEach(async uid => {
+            foreach(var uid in usersToUnassign)
+            {
                 var user = await _dataContext.Users.FindAsync(uid);
                 if (user == null)
                 {
-                    return;
+                    continue;
                 }
 
                 var assigmentsToRemove = task.Assignments.Where(a => a.UserId == uid).ToList();
 
-                assigmentsToRemove.ForEach(a => {
-                    task.Assignments.Remove(a);
-                });
-            });
+                _dataContext.TaskAssignments.RemoveRange(assigmentsToRemove);
+            }
 
-            usersToAssign.ForEach(async uid => {
+            await _dataContext.SaveChangesAsync();
+
+            foreach (var uid in usersToAssign) {
                 var user = await _dataContext.Users.FindAsync(uid);
                 if (user == null)
                 {
                     nonExistingUsers.Add(uid);
-                    return;
+                    continue;
                 }
 
-                if (task.Assignments.Where(a => a.UserId == uid).Any()) {
-                    return;
+                if (task.Assignments.Where(a => a.UserId == uid).Any())
+                {
+                    continue;
                 }
 
                 usersToInform.Add(user);
-                task.Assignments.Add(new TaskAssignment()
+                await _dataContext.TaskAssignments.AddAsync(new TaskAssignment()
                 {
                     UserId = uid,
                     TaskId = task.TaskId
                 });
-            });
+            }
 
             await _dataContext.SaveChangesAsync();
 
-            usersToInform.ForEach(async u => {
-                await _mailer.SendUserTasks(u.Email, $"{u.FirstName} {u.LastName}", new List<UserTask>() { task });
-            });
+            foreach (var user in usersToInform)
+            {
+                await _mailer.SendUserTasks(user.Email, $"{user.FirstName} {user.LastName}", new List<UserTask>() { task });
+            }
 
             return (usersToAssign.Except(nonExistingUsers).ToList(), nonExistingUsers);
         }

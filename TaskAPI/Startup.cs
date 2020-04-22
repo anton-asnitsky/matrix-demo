@@ -108,9 +108,11 @@ namespace TaskAPI
 
             services.AddSingleton(config.CreateMapper());
 
-            services.AddDbContext<DataContext>(options => options.UseSqlServer(
-                Configuration.GetConnectionString("TaskAPI"),
-                x => x.MigrationsAssembly("TaskAPI.Data")
+            services.AddDbContext<DataContext>(options => options
+                .UseLazyLoadingProxies()
+                .UseSqlServer(
+                    Configuration.GetConnectionString("TaskAPI"),
+                    x => x.MigrationsAssembly("TaskAPI.Data")
             ));
 
             services.AddHttpClient();

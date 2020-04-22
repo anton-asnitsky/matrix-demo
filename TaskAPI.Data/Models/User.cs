@@ -26,6 +26,6 @@ namespace TaskAPI.Data.Models
         [Required]
         public Sex Sex { get; set; }
         public string PasswordRecoveryToken { get; set; }
-        public ICollection<TaskAssignment> Assignments { get; set; }
+        public virtual ICollection<TaskAssignment> Assignments { get; set; }
     }
 }

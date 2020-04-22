@@ -9,7 +9,7 @@ namespace TaskAPI.Data.Models
         public Guid TaskId { get; set; }
         public Guid UserId { get; set; }
 
-        public User User { get; set; }
-        public UserTask Task { get; set; }
+        public virtual User User { get; set; }
+        public virtual UserTask Task { get; set; }
     }
 }
