@@ -121,11 +121,12 @@ namespace TaskAPI.Services
 
             await _dataValidator.Validate(task);
 
-            assignTo.ForEach(async uid => {
+            foreach (var uid in assignTo) {
                 var user = await _dataContext.Users.FindAsync(uid);
-                if (user == null) {
+                if (user == null)
+                {
                     nonExistingUsers.Add(uid);
-                    return;
+                    continue;
                 }
 
                 usersToInform.Add(user);
@@ -134,7 +135,7 @@ namespace TaskAPI.Services
                     UserId = uid,
                     TaskId = task.TaskId
                 });
-            });
+            }
 
             _dataContext.UserTasks.Add(task);
 
